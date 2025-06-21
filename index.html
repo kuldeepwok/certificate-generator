@@ -1,1 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Certificate</title>
+  <style>
+    body {
+  font-family: 'Georgia', serif;
+  padding: 40px;
+  text-align: center;
+  background: #fff;
+}
 
+.certificate {
+  padding: 60px;
+  margin: auto;
+  max-width: 1000px;
+  height: 700px;
+  background-image: url('certificate-bg.jpg'); /* ✅ background */
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  color: #000;
+}
+
+h1 {
+  font-size: 48px;
+  margin-top: 80px;
+}
+
+.name {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 30px 0 10px;
+}
+
+h2 {
+  font-size: 22px;
+}  </style>
+</head>
+<body>
+  <div class="certificate" id="certificateDiv">
+    <h1>Certificate of Completion</h1>
+    <p>This certificate is awarded to</p>
+    <div class="name" id="certName"></div>
+    <p>for successfully completing the</p>
+    <h2 id="certCourse"></h2>
+    <p>Date: <span id="certDate"></span></p>
+
+    <!-- QR Code -->
+    <img id="qrCode" src="" alt="QR Code" style="margin-top: 20px;" />
+  </div>
+
+  <br>
+  <button onclick="downloadPDF()">Download as PDF</button>
+
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const name = localStorage.getItem('cert_name');
+    const course = localStorage.getItem('cert_course');
+    const date = localStorage.getItem('cert_date');
+
+    document.getElementById('certName').textContent = name;
+    document.getElementById('certCourse').textContent = course;
+    document.getElementById('certDate').textContent = date;
+
+    const qrURL = `https://api.qrserver.com/v1/create-qr-code/?data=https://wokzok.com/verify?id=${encodeURIComponent(name)}&size=100x100`;
+    document.getElementById('qrCode').src = qrURL;
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const cert = document.getElementById('certificateDiv');
+
+      await html2canvas(cert).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        doc.addImage(imgData, 'PNG', 10, 10, 190, 0);
+        doc.save(`${name}_Certificate.pdf`);
+      });
+    }
+  </script>
+</body>
+</html>
